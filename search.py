@@ -6,52 +6,105 @@ from pytube import YouTube
 import requests
 from bs4 import BeautifulSoup
 
-def search_yotube(lista_musica, artista):
-    for musica in lista_musica:
+
+class Download:
+    def __init__(self, artista, top_music, name_music):
+        self.artista = artista
+        self.top_music = top_music
+        self.name_music = name_music
+        self.path_mp4 = "./mp4"
+
+    @property
+    def name_music(self):
+        return self._name_music
+
+    @name_music.setter
+    def name_music(self, value):
+        if value and isinstance(value, str):
+            self._name_music = value.split(",")
+        else:
+            self._name_music = []
+
+    @property
+    def top_music(self):
+        return self._top_music
+
+    @top_music.setter
+    def top_music(self, value):
+        if value != 0 and isinstance(value, int):
+            self._top_music = value
+        else:
+            self._top_music = None
+
+    def convert_to_mp3(self):
         try:
-            allSearch = Search(f"{artista} {musica} lyrics", limit=1)
-            print(f"Realizando busca {artista} {musica} lyrics youtube")
-            result = YouTube(allSearch.result().get("result")[0].get("link"))
-            result.streams.filter(
-                progressive=True, file_extension="mp4"
-            ).first().download("mp4", filename=f"{musica}.mp4")
-        except Exception:
-            pass
+            abs_path = os.path.abspath(f"{self.path_mp4}")
+            for file in os.listdir(self.path_mp4):
+                file_path = f"{abs_path}/{file}"
+                video = VideoFileClip(file_path)
+                path_mp3 = "{}".format(file_path.replace("mp4", "mp3"))
+                video.audio.write_audiofile(
+                    path_mp3
+                )
+            shutil.rmtree(abs_path)
+        except Exception as e:
+            print(e)
+        
+    def map_errors(self, error):
+        dict_map = {
+            "404": "Nome do artista incorreto"
+        }
+        return dict_map.get(error)
 
-def convert_to_mp3():
-    path_mp4 = "./mp4"
-    try:
-        for file in os.listdir(path_mp4):
-            abs_path = os.path.abspath(f"{path_mp4}")
-            file_path = f"{abs_path}/{file}"
-            video = VideoFileClip(file_path)
-            video.audio.write_audiofile(
-                "./mp3/{0}".format(file.replace("mp4", "mp3"))
+    def consume_letras_br(self):
+
+        list_music = []
+        url = f"https://www.letras.mus.br/{self.artista}/mais_acessadas.html"
+        try:
+            page = requests.get(url)
+            error_print = self.map_errors(page)
+            soup = BeautifulSoup(page.content, "html.parser").find_all(
+                "div", class_="list-container"
             )
-        shutil.rmtree(abs_path)
-    except Exception:
-        pass
+            
+            for job_element in soup:
+                location_element = job_element.find_all(
+                    "li",
+                    class_="cnt-list-row -song is-visible",
+                    limit=self.top_music,
+                )
+                for i in location_element:
+                    company_element = i.find_all("a", class_="song-name")
+                    list_music.append(company_element[0].select_one("span").text)
+        except Exception as e:
+            print(e)
+        return list_music
+    
+    def download_youtube(self):
 
-def url(artista, qtd):
-    lista_musica = []
-    url = f"https://www.letras.mus.br/{artista}/mais_acessadas.html"
-    page = requests.get(url)
-    print(page)
-    if "404" in page:
-        print("Nome do artista incorreto")
-    soup = BeautifulSoup(page.content, 'html.parser').find_all("div", class_="list-container")
-    for job_element in soup:
-        location_element = job_element.find_all("li", class_="cnt-list-row -song is-visible", limit=qtd)
-        for i in location_element:
-            company_element = i.find_all("a", class_="song-name")
-            lista_musica.append(company_element[0].select_one("span").text)
-    print(lista_musica)
-    return lista_musica
-
-artista = str(input("Nome do artista: "))
-if " " in artista:
-    artista = artista.replace(" ","-")
-top_music = int(input("Numero top musica: "))
-lista_musica = url(artista, top_music)
-search_yotube(lista_musica, artista)
-convert_to_mp3()
+            list_music = []
+            if self._top_music and self._name_music:
+                list_music = self.consume_letras_br()
+                list_music.append(self._name_music)
+            elif self._top_music:
+                list_music = self.consume_letras_br()
+            elif self._name_music:
+                list_music = self._name_music
+            if list_music:               
+                for musica in list_music:
+                    print(musica)
+                    try:
+                        allSearch = Search(f"{self.artista} {musica} lyrics", limit=1)
+                        print(
+                            f"Realizando busca {self.artista} {musica} lyrics youtube"
+                        )
+                        result = YouTube(
+                            allSearch.result().get("result")[0].get("link")
+                        )
+                        result.streams.filter(
+                            progressive=True, file_extension="mp4"
+                        ).first().download("mp4", filename=f"{musica}.mp4")
+                    except Exception as e:
+                        print("Error {e}")
+                self.convert_to_mp3()
+                return list_music
