@@ -1,6 +1,6 @@
 import pytest
 import os
-from artist import RequestArtist
+from core.artist import RequestArtist
 
 
 @pytest.mark.parametrize(

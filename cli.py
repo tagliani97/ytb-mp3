@@ -1,5 +1,5 @@
 import click
-from search import Download
+from core.search import Download
 
 @click.command("download")
 @click.option(
