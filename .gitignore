@@ -2,6 +2,7 @@ mp3
 mp4
 
 # Byte-compiled / optimized / DLL files
+.vscode
 __pycache__/
 *.py[cod]
 *$py.class
