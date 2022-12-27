@@ -1,4 +1,4 @@
-from core.download import Download
+from download import Download
 
 
 class Control:
@@ -49,4 +49,4 @@ class Control:
         return init_download
 
 
-Control("metallica", 10,"eye of beholder").init_download()
+Control("metallica", 1,"eye of beholder").init_download()

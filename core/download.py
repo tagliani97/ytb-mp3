@@ -1,7 +1,8 @@
-from core.artist import RequestArtist
+from artist import RequestArtist
 from youtubesearchpython import *
 from pytube import YouTube
-from core.artifact.utils import Utils
+from artifact.utils import Utils
+from artifact.utils import ReadYmlPath
 
 
 class Download:
@@ -34,10 +35,11 @@ class Download:
         return music_artist, music
 
     def download_result(self, search_youtube, music):
+        path_mp4 = ReadYmlPath.read_path().get("path_mp4")
         result = YouTube(search_youtube.result().get("result")[0].get("link"))
         result.streams.filter(
             progressive=True, file_extension="mp4"
-        ).first().download("mp4", filename="{}.mp4".format(music.strip()))
+        ).first().download(path_mp4, filename="{}.mp4".format(music.strip()))
 
     def download_youtube(self, *args):
         try:

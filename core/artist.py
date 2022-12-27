@@ -1,7 +1,7 @@
 import time
 import requests
 from bs4 import BeautifulSoup
-from core.artifact.utils import Utils
+from artifact.utils import Utils
 
 
 class RequestArtist:
