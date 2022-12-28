@@ -1,5 +1,4 @@
 import pytest
-import os
 from core.artist import RequestArtist
 
 @pytest.mark.parametrize(
