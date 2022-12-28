@@ -27,7 +27,7 @@ class Control:
         if value and isinstance(value, str):
             self._name_music = value.split(",")
         else:
-            self._name_music = []
+            self._name_music = None
 
     @property
     def top_music(self):
@@ -39,6 +39,9 @@ class Control:
             self._top_music = value
         else:
             self._top_music = None
+            
+    # def teste(self):
+    #     print(self._artista, self._top_music, self._name_music)
 
     def init_download(self):
         init_download = Download(
@@ -49,4 +52,4 @@ class Control:
         return init_download
 
 
-Control("metallica", 1,"eye of beholder").init_download()
+# Control("marie gabriella, linkin park", 5, "").init_download()

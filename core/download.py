@@ -10,7 +10,7 @@ class Download:
         self.artist = artist
         self.top_music = top_music
         self.name_music = name_music
-        self.lambda__to_strip = lambda x: x.strip()
+        self.lambda__to_strip = lambda x: x.strip().replace(" ", "-")
 
     def prepare_download_artist(self):
         music_artist = dict()
@@ -25,6 +25,8 @@ class Download:
         return music_artist
 
     def prepare_download(self):
+        music_artist = None
+        music = None
         if self.artist:
             music_artist = self.prepare_download_artist()
         if self.name_music:

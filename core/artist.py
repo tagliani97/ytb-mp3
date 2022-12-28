@@ -18,7 +18,7 @@ class RequestArtist:
             page = requests.get(url)
             error_print = Utils.map_errors(str(page.status_code))
             if error_print:
-                raise ValueError("Incorrect artist name")
+                print("Incorrect artist name")
         except ValueError as e:
             raise (e)
         else:
